@@ -11,14 +11,42 @@ config_version=4
 [application]
 
 config/name="Weeber"
-config/description="Weeber is an booru-grabbing program inspired by Grabber. It is currently under test builds."
-run/main_scene="res://Master.tscn"
-config/icon="res://icon.png"
+config/description="Weeber is a simple imageboard (booru) downloader created by MumuNiMochii, and with the power of the Godot Engine."
+run/main_scene="res://Main.tscn"
+config/icon="res://gui/about_weeber_image.png"
+
+[audio]
+
+driver=""
 
 [display]
 
-window/size/width=800
-window/size/height=640
+window/size/width=900
+window/tablet_driver=""
+
+[importer_defaults]
+
+texture={
+"compress/bptc_ldr": 0,
+"compress/hdr_mode": 0,
+"compress/lossy_quality": 0.7,
+"compress/mode": 0,
+"compress/normal_map": 0,
+"detect_3d": false,
+"flags/anisotropic": false,
+"flags/filter": false,
+"flags/mipmaps": false,
+"flags/repeat": 0,
+"flags/srgb": 2,
+"process/HDR_as_SRGB": false,
+"process/fix_alpha_border": true,
+"process/invert_color": false,
+"process/normal_map_invert_y": false,
+"process/premult_alpha": false,
+"size_limit": 0,
+"stream": false,
+"svg/scale": 1.0
+}
 
 [physics]
 
