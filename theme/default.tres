@@ -1,10 +1,11 @@
-[gd_resource type="Theme" load_steps=23 format=2]
+[gd_resource type="Theme" load_steps=28 format=2]
 
 [ext_resource path="res://gui/icon/submenu.png" type="Texture" id=1]
 [ext_resource path="res://gui/icon/checked.png" type="Texture" id=2]
 [ext_resource path="res://gui/icon/unchecked.png" type="Texture" id=3]
 [ext_resource path="res://gui/icon/radio_checked.png" type="Texture" id=4]
 [ext_resource path="res://gui/icon/radio_unchecked.png" type="Texture" id=5]
+[ext_resource path="res://gui/grabber.png" type="Texture" id=6]
 
 [sub_resource type="StyleBoxFlat" id=1]
 border_width_left = 1
@@ -36,6 +37,12 @@ border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
 border_color = Color( 0.423529, 0.678431, 1, 1 )
+
+[sub_resource type="StyleBoxFlat" id=24]
+bg_color = Color( 1, 1, 1, 0 )
+
+[sub_resource type="StyleBoxFlat" id=23]
+bg_color = Color( 1, 1, 1, 0 )
 
 [sub_resource type="StyleBoxFlat" id=8]
 border_width_left = 1
@@ -69,6 +76,14 @@ border_width_bottom = 1
 border_color = Color( 0.423529, 0.678431, 1, 1 )
 
 [sub_resource type="StyleBoxFlat" id=14]
+bg_color = Color( 1, 1, 1, 1 )
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color( 0.764706, 0.764706, 0.764706, 1 )
+
+[sub_resource type="StyleBoxFlat" id=22]
 bg_color = Color( 1, 1, 1, 1 )
 border_width_left = 1
 border_width_top = 1
@@ -111,6 +126,14 @@ border_color = Color( 0.47451, 0.47451, 0.47451, 1 )
 border_width_top = 1
 border_color = Color( 0.772549, 0.772549, 0.772549, 1 )
 
+[sub_resource type="StyleBoxFlat" id=25]
+bg_color = Color( 0.713726, 0.713726, 0.713726, 1 )
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color( 0.403922, 0.403922, 0.403922, 1 )
+
 [sub_resource type="DynamicFontData" id=12]
 font_path = "res://font/NotoSans-Regular.ttf"
 
@@ -134,10 +157,26 @@ Button/styles/hover = SubResource( 3 )
 Button/styles/normal = SubResource( 7 )
 Button/styles/pressed = SubResource( 6 )
 HBoxContainer/constants/separation = 0
+HSplitContainer/constants/autohide = 7
+HSplitContainer/constants/separation = 5
+HSplitContainer/icons/grabber = ExtResource( 6 )
 Label/colors/font_color = Color( 0, 0, 0, 1 )
+LineEdit/colors/clear_button_color = Color( 0, 0, 0, 1 )
+LineEdit/colors/clear_button_color_pressed = Color( 0.180392, 0.180392, 0.180392, 1 )
+LineEdit/colors/cursor_color = Color( 0, 0, 0, 1 )
+LineEdit/colors/font_color = Color( 0, 0, 0, 1 )
+LineEdit/colors/font_color_selected = Color( 1, 1, 1, 1 )
+LineEdit/colors/selection_color = Color( 0.423529, 0.678431, 1, 1 )
+LineEdit/styles/focus = SubResource( 24 )
+LineEdit/styles/normal = SubResource( 23 )
 LinkButton/colors/font_color = Color( 0.0901961, 0.223529, 0.878431, 1 )
+LinkButton/colors/font_color_focus = Color( 0.0901961, 0.223529, 0.878431, 1 )
 LinkButton/colors/font_color_hover = Color( 0.227451, 0.352941, 0.964706, 1 )
 LinkButton/colors/font_color_pressed = Color( 0.4, 0.501961, 1, 1 )
+MarginContainer/constants/margin_bottom = 4
+MarginContainer/constants/margin_left = 4
+MarginContainer/constants/margin_right = 4
+MarginContainer/constants/margin_top = 4
 MenuButton/colors/font_color = Color( 0, 0, 0, 1 )
 MenuButton/colors/font_color_disabled = Color( 0.505882, 0.505882, 0.505882, 1 )
 MenuButton/colors/font_color_focus = Color( 0, 0, 0, 1 )
@@ -148,6 +187,7 @@ MenuButton/styles/hover = SubResource( 9 )
 MenuButton/styles/normal = SubResource( 10 )
 MenuButton/styles/pressed = SubResource( 11 )
 Panel/styles/panel = SubResource( 14 )
+PanelContainer/styles/panel = SubResource( 22 )
 PopupMenu/colors/font_color = Color( 0, 0, 0, 1 )
 PopupMenu/colors/font_color_disabled = Color( 0.505882, 0.505882, 0.505882, 1 )
 PopupMenu/colors/font_color_hover = Color( 0, 0, 0, 1 )
@@ -165,3 +205,4 @@ PopupMenu/styles/labeled_separator_right = SubResource( 21 )
 PopupMenu/styles/panel = SubResource( 15 )
 PopupMenu/styles/panel_disabled = SubResource( 19 )
 PopupMenu/styles/separator = SubResource( 17 )
+TooltipPanel/styles/panel = SubResource( 25 )

@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=2]
+[gd_scene load_steps=16 format=2]
 
 [ext_resource path="res://Main.gd" type="Script" id=1]
 [ext_resource path="res://theme/default.tres" type="Theme" id=2]
@@ -10,6 +10,7 @@
 [ext_resource path="res://font/NotoSansMono-Regular.ttf" type="DynamicFontData" id=8]
 [ext_resource path="res://gui/about_weeber_image.png" type="Texture" id=9]
 [ext_resource path="res://font/NotoSans-Regular.ttf" type="DynamicFontData" id=10]
+[ext_resource path="res://gui/godot_icon_color.png" type="Texture" id=11]
 
 [sub_resource type="StyleBoxTexture" id=1]
 texture = ExtResource( 3 )
@@ -105,41 +106,208 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Content" type="HSplitContainer" parent="GUI/Master/Container"]
+[node name="Margin" type="MarginContainer" parent="GUI/Master/Container"]
 margin_top = 27.0
 margin_right = 900.0
 margin_bottom = 600.0
+size_flags_horizontal = 3
 size_flags_vertical = 3
-split_offset = 1
+custom_constants/margin_top = 0
 
-[node name="Meta" type="VSplitContainer" parent="GUI/Master/Container/Content"]
-margin_right = 201.0
-margin_bottom = 573.0
+[node name="Content" type="HSplitContainer" parent="GUI/Master/Container/Margin"]
+margin_left = 4.0
+margin_right = 896.0
+margin_bottom = 569.0
+
+[node name="Info" type="PanelContainer" parent="GUI/Master/Container/Margin/Content"]
+margin_right = 200.0
+margin_bottom = 569.0
 rect_min_size = Vector2( 200, 0 )
 
-[node name="ColorRect" type="ColorRect" parent="GUI/Master/Container/Content/Meta"]
-margin_right = 201.0
-margin_bottom = 573.0
-color = Color( 1, 0.384314, 0.384314, 1 )
+[node name="VSplitContainer" type="VSplitContainer" parent="GUI/Master/Container/Margin/Content/Info"]
+margin_left = 1.0
+margin_top = 1.0
+margin_right = 199.0
+margin_bottom = 568.0
 
-[node name="Post" type="VBoxContainer" parent="GUI/Master/Container/Content"]
-margin_left = 213.0
-margin_right = 900.0
-margin_bottom = 573.0
-rect_min_size = Vector2( 538, 0 )
+[node name="Post" type="PanelContainer" parent="GUI/Master/Container/Margin/Content"]
+margin_left = 205.0
+margin_right = 892.0
+margin_bottom = 569.0
+rect_min_size = Vector2( 530, 0 )
 
-[node name="ColorRect" type="ColorRect" parent="GUI/Master/Container/Content/Post"]
-margin_right = 687.0
-margin_bottom = 548.0
+[node name="Object" type="VBoxContainer" parent="GUI/Master/Container/Margin/Content/Post"]
+margin_left = 1.0
+margin_top = 1.0
+margin_right = 686.0
+margin_bottom = 568.0
+custom_constants/separation = -2
+
+[node name="Margin1" type="MarginContainer" parent="GUI/Master/Container/Margin/Content/Post/Object"]
+margin_right = 685.0
+margin_bottom = 40.0
+rect_min_size = Vector2( 0, 40 )
+
+[node name="SearchBar" type="HBoxContainer" parent="GUI/Master/Container/Margin/Content/Post/Object/Margin1"]
+margin_left = 4.0
+margin_top = 4.0
+margin_right = 681.0
+margin_bottom = 36.0
+custom_constants/separation = 4
+
+[node name="Panel" type="PanelContainer" parent="GUI/Master/Container/Margin/Content/Post/Object/Margin1/SearchBar"]
+margin_right = 613.0
+margin_bottom = 32.0
+size_flags_horizontal = 3
+
+[node name="Margin" type="MarginContainer" parent="GUI/Master/Container/Margin/Content/Post/Object/Margin1/SearchBar/Panel"]
+margin_left = 1.0
+margin_top = 1.0
+margin_right = 612.0
+margin_bottom = 31.0
+custom_constants/margin_right = 8
+custom_constants/margin_left = 8
+
+[node name="Browser" type="LineEdit" parent="GUI/Master/Container/Margin/Content/Post/Object/Margin1/SearchBar/Panel/Margin"]
+margin_left = 8.0
+margin_top = 4.0
+margin_right = 603.0
+margin_bottom = 26.0
+clear_button_enabled = true
+placeholder_text = "Enter tags (e.g. 'pokemon cynthia rating:safe')"
+caret_blink = true
+
+[node name="SearchBtn" type="Button" parent="GUI/Master/Container/Margin/Content/Post/Object/Margin1/SearchBar"]
+margin_left = 617.0
+margin_right = 677.0
+margin_bottom = 32.0
+rect_min_size = Vector2( 60, 0 )
+text = "Search"
+
+[node name="Margin2" type="MarginContainer" parent="GUI/Master/Container/Margin/Content/Post/Object"]
+margin_top = 38.0
+margin_right = 685.0
+margin_bottom = 567.0
 size_flags_vertical = 3
-color = Color( 0.329412, 0.639216, 1, 1 )
 
-[node name="PostSize" type="Label" parent="GUI/Master/Container/Content/Post"]
-margin_top = 552.0
-margin_right = 687.0
-margin_bottom = 573.0
+[node name="Gallery" type="VBoxContainer" parent="GUI/Master/Container/Margin/Content/Post/Object/Margin2"]
+margin_left = 4.0
+margin_top = 4.0
+margin_right = 681.0
+margin_bottom = 525.0
+
+[node name="Panel1" type="PanelContainer" parent="GUI/Master/Container/Margin/Content/Post/Object/Margin2/Gallery"]
+margin_right = 677.0
+margin_bottom = 487.0
+size_flags_vertical = 3
+
+[node name="Margin" type="MarginContainer" parent="GUI/Master/Container/Margin/Content/Post/Object/Margin2/Gallery/Panel1"]
+margin_left = 1.0
+margin_top = 1.0
+margin_right = 676.0
+margin_bottom = 486.0
+
+[node name="Scroll" type="ScrollContainer" parent="GUI/Master/Container/Margin/Content/Post/Object/Margin2/Gallery/Panel1/Margin"]
+margin_left = 4.0
+margin_top = 4.0
+margin_right = 671.0
+margin_bottom = 481.0
+follow_focus = true
+scroll_horizontal_enabled = false
+
+[node name="Menu" type="GridContainer" parent="GUI/Master/Container/Margin/Content/Post/Object/Margin2/Gallery/Panel1/Margin/Scroll"]
+margin_right = 667.0
+margin_bottom = 477.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+columns = 2
+
+[node name="Panel2" type="PanelContainer" parent="GUI/Master/Container/Margin/Content/Post/Object/Margin2/Gallery"]
+margin_top = 491.0
+margin_right = 677.0
+margin_bottom = 521.0
+rect_min_size = Vector2( 0, 30 )
+
+[node name="Tools" type="HBoxContainer" parent="GUI/Master/Container/Margin/Content/Post/Object/Margin2/Gallery/Panel2"]
+margin_left = 1.0
+margin_top = 1.0
+margin_right = 676.0
+margin_bottom = 29.0
+alignment = 1
+
+[node name="Info" type="HBoxContainer" parent="GUI/Master/Container/Margin/Content/Post/Object/Margin2/Gallery/Panel2/Tools"]
+margin_right = 225.0
+margin_bottom = 28.0
+size_flags_horizontal = 3
+
+[node name="Page" type="HBoxContainer" parent="GUI/Master/Container/Margin/Content/Post/Object/Margin2/Gallery/Panel2/Tools"]
+margin_left = 225.0
+margin_right = 450.0
+margin_bottom = 28.0
+custom_constants/separation = 4
+alignment = 1
+
+[node name="FirstBtn" type="Button" parent="GUI/Master/Container/Margin/Content/Post/Object/Margin2/Gallery/Panel2/Tools/Page"]
+margin_right = 34.0
+margin_bottom = 28.0
+rect_min_size = Vector2( 34, 0 )
+text = "<<"
+
+[node name="BackBtn" type="Button" parent="GUI/Master/Container/Margin/Content/Post/Object/Margin2/Gallery/Panel2/Tools/Page"]
+margin_left = 38.0
+margin_right = 65.0
+margin_bottom = 28.0
+rect_min_size = Vector2( 27, 0 )
+text = "<"
+
+[node name="Label" type="Label" parent="GUI/Master/Container/Margin/Content/Post/Object/Margin2/Gallery/Panel2/Tools/Page"]
+margin_left = 69.0
+margin_right = 156.0
+margin_bottom = 28.0
+rect_min_size = Vector2( 87, 0 )
+size_flags_vertical = 1
+text = "Page 1 of 10"
+align = 1
+valign = 1
+
+[node name="NextBtn" type="Button" parent="GUI/Master/Container/Margin/Content/Post/Object/Margin2/Gallery/Panel2/Tools/Page"]
+margin_left = 160.0
+margin_right = 187.0
+margin_bottom = 28.0
+rect_min_size = Vector2( 27, 0 )
+text = ">"
+
+[node name="LastBtn" type="Button" parent="GUI/Master/Container/Margin/Content/Post/Object/Margin2/Gallery/Panel2/Tools/Page"]
+margin_left = 191.0
+margin_right = 225.0
+margin_bottom = 28.0
+rect_min_size = Vector2( 34, 0 )
+text = ">>"
+
+[node name="File" type="HBoxContainer" parent="GUI/Master/Container/Margin/Content/Post/Object/Margin2/Gallery/Panel2/Tools"]
+margin_left = 450.0
+margin_right = 675.0
+margin_bottom = 28.0
+size_flags_horizontal = 3
+custom_constants/separation = 4
+alignment = 2
+
+[node name="DownloadBtn" type="Button" parent="GUI/Master/Container/Margin/Content/Post/Object/Margin2/Gallery/Panel2/Tools/File"]
+margin_left = 53.0
+margin_right = 129.0
+margin_bottom = 28.0
+rect_min_size = Vector2( 76, 0 )
+text = "Download"
+
+[node name="DownloadAllBtn" type="Button" parent="GUI/Master/Container/Margin/Content/Post/Object/Margin2/Gallery/Panel2/Tools/File"]
+margin_left = 133.0
+margin_right = 225.0
+margin_bottom = 28.0
+rect_min_size = Vector2( 92, 0 )
+text = "Download all"
 
 [node name="AboutPopup" type="Control" parent="GUI/Master"]
+visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 2
@@ -167,6 +335,7 @@ custom_icons/close = ExtResource( 5 )
 custom_styles/panel = SubResource( 1 )
 popup_exclusive = true
 __meta__ = {
+"_edit_group_": true,
 "_edit_use_anchors_": false
 }
 
@@ -218,7 +387,7 @@ rect_min_size = Vector2( 450, 120 )
 custom_constants/separation = 8
 
 [node name="Name" type="Label" parent="GUI/Master/AboutPopup/Weeber/Content/Header"]
-margin_right = 195.0
+margin_right = 272.0
 margin_bottom = 120.0
 rect_min_size = Vector2( 125, 120 )
 size_flags_horizontal = 0
@@ -226,13 +395,13 @@ size_flags_vertical = 1
 custom_colors/font_color = Color( 0.501961, 0.501961, 0.501961, 1 )
 custom_colors/font_color_shadow = Color( 0.3125, 0.3125, 0.3125, 1 )
 custom_fonts/font = SubResource( 2 )
-text = "          Weeber"
+text = "                     Weeber"
 align = 1
 valign = 2
 
 [node name="Version" type="Label" parent="GUI/Master/AboutPopup/Weeber/Content/Header"]
-margin_left = 203.0
-margin_right = 228.0
+margin_left = 280.0
+margin_right = 305.0
 margin_bottom = 120.0
 rect_min_size = Vector2( 25, 120 )
 size_flags_horizontal = 0
@@ -257,7 +426,7 @@ rect_min_size = Vector2( 124, 85 )
 size_flags_vertical = 0
 texture = ExtResource( 9 )
 expand = true
-stretch_mode = 4
+stretch_mode = 6
 
 [node name="Text" type="Label" parent="GUI/Master/AboutPopup/Weeber/Content/Info"]
 margin_left = 172.0
@@ -282,6 +451,148 @@ margin_right = 0.0499878
 margin_bottom = 0.0999908
 shortcut_in_tooltip = false
 text = "Github"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Godot" type="WindowDialog" parent="GUI/Master/AboutPopup"]
+visible = true
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -225.0
+margin_top = -150.0
+margin_right = 225.0
+margin_bottom = 150.0
+rect_min_size = Vector2( 450, 300 )
+size_flags_horizontal = 5
+custom_constants/close_h_ofs = 46
+custom_constants/close_v_ofs = 35
+custom_constants/title_height = 35
+custom_icons/close_highlight = ExtResource( 4 )
+custom_icons/close = ExtResource( 5 )
+custom_styles/panel = SubResource( 1 )
+popup_exclusive = true
+__meta__ = {
+"_edit_group_": true,
+"_edit_use_anchors_": false
+}
+
+[node name="Override" type="Control" parent="GUI/Master/AboutPopup/Godot"]
+anchor_top = -0.117
+anchor_right = 1.0
+margin_top = 0.100002
+mouse_filter = 2
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="TopBar" type="HBoxContainer" parent="GUI/Master/AboutPopup/Godot/Override"]
+anchor_right = 0.898
+anchor_bottom = 1.0
+margin_right = -0.100037
+rect_min_size = Vector2( 404, 35 )
+size_flags_horizontal = 3
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Icon" type="TextureRect" parent="GUI/Master/AboutPopup/Godot/Override/TopBar"]
+margin_right = 35.0
+margin_bottom = 35.0
+rect_min_size = Vector2( 35, 35 )
+texture = ExtResource( 6 )
+expand = true
+stretch_mode = 4
+
+[node name="Title" type="Label" parent="GUI/Master/AboutPopup/Godot/Override/TopBar"]
+margin_left = 35.0
+margin_top = 7.0
+margin_right = 200.0
+margin_bottom = 28.0
+text = "About Godot Engine - Weeber"
+
+[node name="Content" type="VBoxContainer" parent="GUI/Master/AboutPopup/Godot"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Header" type="HBoxContainer" parent="GUI/Master/AboutPopup/Godot/Content"]
+margin_right = 450.0
+margin_bottom = 80.0
+rect_min_size = Vector2( 450, 80 )
+custom_constants/separation = 8
+
+[node name="Name" type="Label" parent="GUI/Master/AboutPopup/Godot/Content/Header"]
+margin_right = 319.0
+margin_bottom = 80.0
+rect_min_size = Vector2( 125, 80 )
+size_flags_horizontal = 0
+size_flags_vertical = 1
+custom_colors/font_color = Color( 0.501961, 0.501961, 0.501961, 1 )
+custom_colors/font_color_shadow = Color( 0.3125, 0.3125, 0.3125, 1 )
+custom_fonts/font = SubResource( 2 )
+text = "               Godot Engine"
+align = 1
+valign = 2
+
+[node name="Version" type="Label" parent="GUI/Master/AboutPopup/Godot/Content/Header"]
+margin_left = 327.0
+margin_right = 352.0
+margin_bottom = 80.0
+rect_min_size = Vector2( 25, 80 )
+size_flags_horizontal = 0
+size_flags_vertical = 1
+custom_fonts/font = SubResource( 3 )
+text = "3.4.2"
+align = 1
+valign = 2
+
+[node name="Info" type="HBoxContainer" parent="GUI/Master/AboutPopup/Godot/Content"]
+margin_top = 84.0
+margin_right = 450.0
+margin_bottom = 300.0
+size_flags_vertical = 3
+alignment = 1
+
+[node name="Image" type="TextureRect" parent="GUI/Master/AboutPopup/Godot/Content/Info"]
+margin_left = 38.0
+margin_right = 162.0
+margin_bottom = 110.0
+rect_min_size = Vector2( 124, 110 )
+size_flags_vertical = 0
+texture = ExtResource( 11 )
+expand = true
+stretch_mode = 6
+
+[node name="Text" type="Label" parent="GUI/Master/AboutPopup/Godot/Content/Info"]
+margin_left = 162.0
+margin_right = 412.0
+margin_bottom = 125.0
+rect_min_size = Vector2( 250, 125 )
+size_flags_vertical = 0
+custom_fonts/font = SubResource( 4 )
+text = "Godot Engine is a feature-packed, cross-platform game engine to create 2D and 3D games from a unified interface.
+
+Godot is completely free and open source under the permissive MIT license.
+
+See                                 for more information."
+autowrap = true
+
+[node name="GodotLinkBtn" type="LinkButton" parent="GUI/Master/AboutPopup/Godot"]
+anchor_left = 0.416
+anchor_top = 0.64
+anchor_right = 0.62
+anchor_bottom = 0.71
+margin_left = -0.199997
+margin_top = -3.05176e-05
+margin_bottom = -1.52588e-05
+focus_mode = 2
+shortcut_in_tooltip = false
+text = "godotengine.org"
 __meta__ = {
 "_edit_use_anchors_": false
 }
