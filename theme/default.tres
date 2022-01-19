@@ -1,16 +1,17 @@
-[gd_resource type="Theme" load_steps=37 format=2]
+[gd_resource type="Theme" load_steps=38 format=2]
 
 [ext_resource path="res://gui/icon/submenu.png" type="Texture" id=1]
 [ext_resource path="res://gui/icon/checked.png" type="Texture" id=2]
 [ext_resource path="res://gui/icon/unchecked.png" type="Texture" id=3]
 [ext_resource path="res://gui/icon/radio_checked.png" type="Texture" id=4]
 [ext_resource path="res://gui/icon/radio_unchecked.png" type="Texture" id=5]
-[ext_resource path="res://gui/grabber.png" type="Texture" id=6]
+[ext_resource path="res://gui/icon/hsplitcontainer_grabber.png" type="Texture" id=6]
 [ext_resource path="res://font/NotoSansMono-Regular.ttf" type="DynamicFontData" id=7]
 [ext_resource path="res://font/NotoSans-Regular.ttf" type="DynamicFontData" id=8]
 [ext_resource path="res://font/NotoSans-Bold.ttf" type="DynamicFontData" id=9]
 [ext_resource path="res://font/NotoSans-Italic.ttf" type="DynamicFontData" id=10]
 [ext_resource path="res://font/NotoSans-BoldItalic.ttf" type="DynamicFontData" id=11]
+[ext_resource path="res://gui/icon/vsplitcontainer_grabber.png" type="Texture" id=12]
 
 [sub_resource type="StyleBoxFlat" id=1]
 border_width_left = 1
@@ -238,3 +239,6 @@ RichTextLabel/fonts/bold_italics_font = SubResource( 26 )
 RichTextLabel/fonts/italics_font = SubResource( 27 )
 RichTextLabel/fonts/mono_font = SubResource( 28 )
 RichTextLabel/fonts/normal_font = SubResource( 29 )
+VSplitContainer/constants/autohide = 7
+VSplitContainer/constants/separation = 5
+VSplitContainer/icons/grabber = ExtResource( 12 )

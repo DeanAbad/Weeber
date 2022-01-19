@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=2]
+[gd_scene load_steps=21 format=2]
 
 [ext_resource path="res://Main.gd" type="Script" id=1]
 [ext_resource path="res://theme/default.tres" type="Theme" id=2]
@@ -11,6 +11,18 @@
 [ext_resource path="res://gui/about_weeber_image.png" type="Texture" id=9]
 [ext_resource path="res://font/NotoSans-Regular.ttf" type="DynamicFontData" id=10]
 [ext_resource path="res://gui/godot_icon_color.png" type="Texture" id=11]
+[ext_resource path="res://font/NotoSans-Bold.ttf" type="DynamicFontData" id=12]
+[ext_resource path="res://gui/tags_info.png" type="Texture" id=13]
+
+[sub_resource type="StyleBoxEmpty" id=6]
+
+[sub_resource type="DynamicFont" id=5]
+size = 12
+use_mipmaps = true
+use_filter = true
+font_data = ExtResource( 12 )
+
+[sub_resource type="StyleBoxEmpty" id=7]
 
 [sub_resource type="StyleBoxTexture" id=1]
 texture = ExtResource( 3 )
@@ -124,11 +136,85 @@ margin_right = 200.0
 margin_bottom = 569.0
 rect_min_size = Vector2( 200, 0 )
 
-[node name="VSplitContainer" type="VSplitContainer" parent="GUI/Master/Container/Margin/Content/Info"]
+[node name="Margin" type="MarginContainer" parent="GUI/Master/Container/Margin/Content/Info"]
 margin_left = 1.0
 margin_top = 1.0
 margin_right = 199.0
 margin_bottom = 568.0
+
+[node name="File" type="VSplitContainer" parent="GUI/Master/Container/Margin/Content/Info/Margin"]
+margin_left = 4.0
+margin_top = 4.0
+margin_right = 194.0
+margin_bottom = 563.0
+
+[node name="Tags" type="PanelContainer" parent="GUI/Master/Container/Margin/Content/Info/Margin/File"]
+margin_right = 190.0
+margin_bottom = 404.0
+rect_min_size = Vector2( 0, 150 )
+size_flags_vertical = 3
+
+[node name="Margin" type="MarginContainer" parent="GUI/Master/Container/Margin/Content/Info/Margin/File/Tags"]
+margin_left = 1.0
+margin_top = 1.0
+margin_right = 189.0
+margin_bottom = 403.0
+
+[node name="Content" type="VBoxContainer" parent="GUI/Master/Container/Margin/Content/Info/Margin/File/Tags/Margin"]
+margin_left = 4.0
+margin_top = 4.0
+margin_right = 184.0
+margin_bottom = 398.0
+
+[node name="Info" type="HBoxContainer" parent="GUI/Master/Container/Margin/Content/Info/Margin/File/Tags/Margin/Content"]
+margin_right = 180.0
+margin_bottom = 17.0
+
+[node name="Title" type="PanelContainer" parent="GUI/Master/Container/Margin/Content/Info/Margin/File/Tags/Margin/Content/Info"]
+margin_right = 164.0
+margin_bottom = 17.0
+size_flags_horizontal = 3
+custom_styles/panel = SubResource( 6 )
+
+[node name="Label" type="Label" parent="GUI/Master/Container/Margin/Content/Info/Margin/File/Tags/Margin/Content/Info/Title"]
+margin_right = 164.0
+margin_bottom = 17.0
+size_flags_vertical = 0
+custom_fonts/font = SubResource( 5 )
+text = "Tags"
+
+[node name="Help" type="PanelContainer" parent="GUI/Master/Container/Margin/Content/Info/Margin/File/Tags/Margin/Content/Info"]
+margin_left = 164.0
+margin_right = 180.0
+margin_bottom = 17.0
+custom_styles/panel = SubResource( 7 )
+
+[node name="Icon" type="TextureRect" parent="GUI/Master/Container/Margin/Content/Info/Margin/File/Tags/Margin/Content/Info/Help"]
+margin_right = 16.0
+margin_bottom = 17.0
+texture = ExtResource( 13 )
+stretch_mode = 6
+
+[node name="Scroll" type="ScrollContainer" parent="GUI/Master/Container/Margin/Content/Info/Margin/File/Tags/Margin/Content"]
+margin_top = 21.0
+margin_right = 180.0
+margin_bottom = 394.0
+size_flags_vertical = 3
+follow_focus = true
+scroll_horizontal_enabled = false
+
+[node name="List" type="VBoxContainer" parent="GUI/Master/Container/Margin/Content/Info/Margin/File/Tags/Margin/Content/Scroll"]
+margin_right = 180.0
+margin_bottom = 373.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_constants/separation = 0
+
+[node name="Folder" type="PanelContainer" parent="GUI/Master/Container/Margin/Content/Info/Margin/File"]
+margin_top = 409.0
+margin_right = 190.0
+margin_bottom = 559.0
+rect_min_size = Vector2( 0, 150 )
 
 [node name="Post" type="PanelContainer" parent="GUI/Master/Container/Margin/Content"]
 margin_left = 205.0

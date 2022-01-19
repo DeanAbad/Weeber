@@ -3,16 +3,21 @@ extends Node
 # ===================== REQUEST VARIABLES - START ==========================
 # Request url & api
 const BASE_URL : String = "https://gelbooru.com/index.php?"
-var request_api : String = "page=dapi&s=post&q=index"
+var request_api_post : String = "page=dapi&s=post&q=index"
+var request_api_tags : String = "page=dapi&s=tag&q=index"
 var request_key : String = "&api_key=8ab7ebb52c422eed978168195d24ac54856447855f7676169517683bf7847839&user_id=918696"
 var request_tag : String = "&tags=rating:safe -rating:explicit -rating:questionable"
-var request_list_size : int = 20
-var request_options : String = "&limit="+str(request_list_size)+request_tag+"&pid=0&json=1"
-var request_url : String = BASE_URL+request_api+request_key+request_options.http_unescape()
+var request_post_size : int = 20
+var request_tags_size : int = 100 # 100 is max per request
+var request_post_options : String = "&limit="+str(request_post_size)+request_tag+"&pid=0&json=1"
+var request_tags_options : String = "&limit="+str(request_tags_size)+"&pid=0&json=1"
+var request_url_post : String = BASE_URL+request_api_post+request_key+request_post_options.http_unescape()
+var request_url_tags : String = BASE_URL+request_api_tags+request_key+request_tags_options.http_unescape()
 # Download queue
 var download_path : String = "user://downloads"
 var preview_path : String = "user://previews"
 var download_list : Array = []
+var tags_list : Array = []
 var index : int = 0
 var size: int = 0
 # ====================== REQUEST VARIABLES - END ===========================
@@ -20,6 +25,7 @@ var size: int = 0
 # ======================= GUI VARIABLES - START ============================
 onready var custom_tooltip : PackedScene = preload("res://CustomToolTip.tscn")
 onready var menu_bar : HBoxContainer = $GUI/Master/Container/MenuBar
+onready var list : VBoxContainer = $GUI/Master/Container/Margin/Content/Info/Margin/File/Tags/Margin/Content/Scroll/List
 onready var menu : GridContainer = $GUI/Master/Container/Margin/Content/Post/Object/Margin2/Gallery/Panel1/Margin/Scroll/Menu
 onready var about_popup : Control = $GUI/Master/AboutPopup
 # ======================== GUI VARIABLES - END =============================
@@ -99,6 +105,13 @@ func set_gui() -> void:
 	var key : InputEventKey = InputEventKey.new()
 
 	if menu.connect("resized", self, "_on_when_resized_menu") != OK:
+		push_error("An error occurred in signal connection.")
+
+	var tags_list_help_icon : TextureRect = $GUI/Master/Container/Margin/Content/Info/Margin/File/Tags/Margin/Content/Info/Help/Icon
+	if tags_list_help_icon.connect("mouse_entered", self, "_on_mouse_entered_tags_list_help_icon") != OK:
+		push_error("An error occurred in signal connection.")
+
+	if tags_list_help_icon.connect("mouse_exited", self, "_on_mouse_exited_tags_list_help_icon") != OK:
 		push_error("An error occurred in signal connection.")
 
 # ====================== FILEBTN SETTINGS - START ==========================
@@ -183,7 +196,7 @@ func initialize_httprequest_signal() -> void:
 		$HTTPRequest.set_use_threads(true)
 
 	if $HTTPRequest.request(
-		request_url,
+		request_url_post,
 		PoolStringArray([
 			"text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"
 		]), true, 0
@@ -210,7 +223,12 @@ func _on_initial_request_completed(_result, _response_code, _headers, body) -> v
 			"id":str(an_index["id"]),
 			"url":an_index["file_url"],
 			"view":an_index["preview_url"],
-			"tags":an_index["tags"]
+			"tags":an_index["tags"],
+			"width":str(an_index["width"]),
+			"height":str(an_index["height"]),
+			"rating":an_index["rating"],
+			"date":an_index["created_at"],
+			"score":str(an_index["score"])
 		}
 		download_list.append(item)
 
@@ -221,13 +239,61 @@ func _on_initial_request_completed(_result, _response_code, _headers, body) -> v
 #		print(download_list)
 #		print(object_string_sample)
 
+	tags_httprequest_signal()
+
+
+func tags_httprequest_signal() -> void:
+	$HTTPRequest.cancel_request()
+
+	if $HTTPRequest.connect("request_completed", self, "_on_tags_httprequest_signal_completed") != OK:
+		push_error("An error occurred in signal connection.")
+	else:
+		$HTTPRequest.set_use_threads(true)
+
+	if $HTTPRequest.request(
+		request_url_tags,
+		PoolStringArray([
+			"text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"
+		]), true, 0
+	) != OK:
+		push_error("An error occurred in the HTTP request.")
+
+
+func _on_tags_httprequest_signal_completed(_result, _response_code, _headers, body) -> void:
+	$HTTPRequest.cancel_request()
+
+	var string_body_result : String = body.get_string_from_utf8()
+	var json_parse_result : JSONParseResult = JSON.parse(string_body_result)
+	var object : Dictionary = json_parse_result.get_result()
+
+	if $HTTPRequest.is_connected("request_completed", self, "_on_tags_httprequest_signal_completed"):
+		$HTTPRequest.disconnect("request_completed", self, "_on_tags_httprequest_signal_completed")
+
+#	if OS.is_debug_build() == true: print(JSON.print(object["tag"][0], "\t"))
+
+	for an_index in object["tag"]:
+		var item : Dictionary = {
+			"id":str(an_index["id"]),
+			"name":an_index["name"].c_unescape(),
+			"count":str(an_index["count"]),
+			"type":str(an_index["type"])
+		}
+		tags_list.append(item)
+
+	for an_index in tags_list.size():
+		var list_tag_btn : LinkButton = LinkButton.new()
+		list.add_child(list_tag_btn, true)
+		if list.get_child_count() > 0:
+			list.get_child(an_index).set_text(object["tag"][an_index]["name"])
+		else: pass
+
 	request_image()
 
 
 func request_image() -> void:
 	if index < size:
 		# Allow download if item is under the limit
-		if index < request_list_size:
+		if index < request_post_size:
 			var request_file_status : int = $HTTPRequest.request(
 				download_list[index]["view"],
 				PoolStringArray([
@@ -243,7 +309,6 @@ func request_image() -> void:
 					$HTTPRequest.set_download_file(preview_path+"/"+download_list[index]["id"]+"."+download_list[index]["view"].get_extension())
 
 					_on_when_resized_menu()
-		# else, download completed
 
 
 func _on_file_request_completed(_result, _response_code, headers, _body) -> void:
@@ -297,6 +362,21 @@ func _on_file_request_completed(_result, _response_code, headers, _body) -> void
 		request_image()
 
 
+func _on_mouse_entered_tags_list_help_icon() -> void:
+	$GUI/Master/CustomTooltip.add_child(custom_tooltip.instance())
+
+	if $GUI/Master/CustomTooltip.get_child_count() > 0:
+		$GUI/Master/CustomTooltip.get_child(0).rect_min_size.x = 200
+		$GUI/Master/CustomTooltip.get_child(0)._set_global_position($GUI/Master.get_global_mouse_position())
+		$GUI/Master/CustomTooltip.get_child(0).get_node("Margin/Text").set_bbcode("The list consists only of common tags between the images.")
+
+	if weakref(custom_tooltip) : pass
+
+
+func _on_mouse_exited_tags_list_help_icon() -> void:
+	$GUI/Master/CustomTooltip.get_child(0).free()
+
+
 func _on_mouse_entered_view_image_btn(id : String) -> void:
 	$GUI/Master/CustomTooltip.add_child(custom_tooltip.instance())
 
@@ -306,7 +386,12 @@ func _on_mouse_entered_view_image_btn(id : String) -> void:
 
 		for an_image in menu.get_children():
 			if an_image.name == id:
-				var tags = "[b]Tags:[/b] "+download_list[an_image.get_index()]["tags"]
+				var tags = "[b]Tags:[/b] "+download_list[an_image.get_index()]["tags"] \
+				+"\n\n[b]ID:[/b] "+download_list[an_image.get_index()]["id"] \
+				+"\n[b]Rating:[/b] "+download_list[an_image.get_index()]["rating"] \
+				+"\n[b]Score:[/b] "+download_list[an_image.get_index()]["score"] \
+				+"\n[b]Size:[/b] "+download_list[an_image.get_index()]["width"]+"x"+download_list[an_image.get_index()]["height"] \
+				+"\n[b]Date:[/b] "+download_list[an_image.get_index()]["date"]
 				$GUI/Master/CustomTooltip.get_child(0).get_node("Margin/Text").set_bbcode(tags)
 
 	if weakref(custom_tooltip) : pass
