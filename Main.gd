@@ -5,17 +5,20 @@ extends Node
 const BASE_URL : String = "https://gelbooru.com/index.php?"
 var request_api : String = "page=dapi&s=post&q=index"
 var request_key : String = "&api_key=8ab7ebb52c422eed978168195d24ac54856447855f7676169517683bf7847839&user_id=918696"
-var request_list_size : int = 10
-var request_options : String = "&limit="+str(request_list_size)+"&pid=0&json=1"
-var request_url : String = BASE_URL+request_api+request_key+request_options
+var request_tag : String = "&tags=rating:safe -rating:explicit -rating:questionable"
+var request_list_size : int = 20
+var request_options : String = "&limit="+str(request_list_size)+request_tag+"&pid=0&json=1"
+var request_url : String = BASE_URL+request_api+request_key+request_options.http_unescape()
 # Download queue
 var download_path : String = "user://downloads"
 var preview_path : String = "user://previews"
 var download_list : Array = []
 var index : int = 0
+var size: int = 0
 # ====================== REQUEST VARIABLES - END ===========================
 
 # ======================= GUI VARIABLES - START ============================
+onready var custom_tooltip : PackedScene = preload("res://CustomToolTip.tscn")
 onready var menu_bar : HBoxContainer = $GUI/Master/Container/MenuBar
 onready var menu : GridContainer = $GUI/Master/Container/Margin/Content/Post/Object/Margin2/Gallery/Panel1/Margin/Scroll/Menu
 onready var about_popup : Control = $GUI/Master/AboutPopup
@@ -73,6 +76,8 @@ func _when_quitted() -> void:
 							push_error("An error occurred on deleting file.")
 					file_name = download_preview_directory.get_next()
 
+	queue_free()
+
 
 func request() -> void:
 	# Create directory first
@@ -92,6 +97,9 @@ func set_gui() -> void:
 	var helpbtn_popupmenu : PopupMenu = menu_bar.get_node("HelpBtn").get_popup()
 	var icon : TextureRect = TextureRect.new()
 	var key : InputEventKey = InputEventKey.new()
+
+	if menu.connect("resized", self, "_on_when_resized_menu") != OK:
+		push_error("An error occurred in signal connection.")
 
 # ====================== FILEBTN SETTINGS - START ==========================
 	filebtn_popupmenu.set_custom_minimum_size(
@@ -133,6 +141,8 @@ func set_gui() -> void:
 	icon.texture = load("res://gui/icon/about_godot_engine.png")
 	helpbtn_popupmenu.add_icon_item(icon.get_texture(), "  About Godot Engine", 2, 0)
 # ======================= HELPBTN SETTINGS - END ===========================
+
+	icon.free()
 
 	# After making the buttons, make a connection for their signals
 	var filebtn_popupmenu_connection : int = filebtn_popupmenu.connect("index_pressed", self, "_filebtn_popmenu_item_pressed")
@@ -187,6 +197,7 @@ func _on_initial_request_completed(_result, _response_code, _headers, body) -> v
 	var string_body_result : String = body.get_string_from_utf8()
 	var json_parse_result : JSONParseResult = JSON.parse(string_body_result)
 	var object : Dictionary = json_parse_result.get_result()
+	size = object["post"].size()
 
 	# Disconnect to prevent from being emitted when request_image() is used
 	if $HTTPRequest.is_connected("request_completed", self, "_on_initial_request_completed"):
@@ -214,26 +225,25 @@ func _on_initial_request_completed(_result, _response_code, _headers, body) -> v
 
 
 func request_image() -> void:
-	# Allow download if item is under the limit
-	if index < request_list_size:
-		var request_file_status : int = $HTTPRequest.request(
-			download_list[index]["view"],
-			PoolStringArray([
-				"Accept: image/avif,image/webp,*/*",
-				"Accept: video/webm,video/ogg,video/*;q=0.9,application/ogg;q=0.7,audio/*;q=0.6,*/*;q=0.5"
-			]), true, 0
-		)
+	if index < size:
+		# Allow download if item is under the limit
+		if index < request_list_size:
+			var request_file_status : int = $HTTPRequest.request(
+				download_list[index]["view"],
+				PoolStringArray([
+					"Accept: image/avif,image/webp,*/*",
+					"Accept: video/webm,video/ogg,video/*;q=0.9,application/ogg;q=0.7,audio/*;q=0.6,*/*;q=0.5"
+				]), true, 0
+			)
 
-		if request_file_status == OK:
-			# Emit another signal to get the headers
-			if $HTTPRequest.connect("request_completed", self, "_on_file_request_completed") != OK:
-				push_error("An error occurred in signal connection.")
-			else:
-				$HTTPRequest.set_use_threads(true)
-				$HTTPRequest.set_download_file(preview_path+"/"+download_list[index]["id"]+"."+download_list[index]["view"].get_extension())
-		else:
-			push_error("An error occurred in the HTTP request.")
-	# else, download completed
+			if request_file_status == OK:
+				# Emit another signal to get the headers
+				if $HTTPRequest.connect("request_completed", self, "_on_file_request_completed") == OK:
+					$HTTPRequest.set_use_threads(true)
+					$HTTPRequest.set_download_file(preview_path+"/"+download_list[index]["id"]+"."+download_list[index]["view"].get_extension())
+
+					_on_when_resized_menu()
+		# else, download completed
 
 
 func _on_file_request_completed(_result, _response_code, headers, _body) -> void:
@@ -257,22 +267,62 @@ func _on_file_request_completed(_result, _response_code, headers, _body) -> void
 		if $HTTPRequest.is_connected("request_completed", self, "_on_file_request_completed"):
 			$HTTPRequest.disconnect("request_completed", self, "_on_file_request_completed")
 
-#			var preview_image : TextureRect = TextureRect.new()
-			var texture : ImageTexture = ImageTexture.new()
-			var image : Image = Image.new()
-			var view_image_btn : TextureButton = TextureButton.new()
+		var texture : ImageTexture = ImageTexture.new()
+		var image : Image = Image.new()
+		var view_image_btn : TextureButton = TextureButton.new()
 
-			menu.add_child(view_image_btn, true)
-			menu.get_child(index).set_name(download_list[index]["id"]+"preview")
+		menu.add_child(view_image_btn, true)
+		menu.get_child(index).set_name(download_list[index]["id"])
 
-			view_image_btn.set_custom_minimum_size(Vector2(200, 200))
-			view_image_btn.set_expand(true)
-			view_image_btn.set_stretch_mode(TextureButton.STRETCH_KEEP_ASPECT_CENTERED)
-			view_image_btn.set_tooltip("Tags: "+download_list[index]["tags"])
+		view_image_btn.set_expand(true)
+		view_image_btn.set_stretch_mode(TextureButton.STRETCH_KEEP_ASPECT_CENTERED)
+		view_image_btn.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+		view_image_btn.mouse_filter = Control.MOUSE_FILTER_PASS
 
-			if image.load(preview_path+"/"+download_list[index]["id"]+"."+download_list[index]["view"].get_extension()) == OK:
-				texture.create_from_image(image)
-				view_image_btn.set_normal_texture(texture)
+		if image.load(preview_path+"/"+download_list[index]["id"]+"."+download_list[index]["view"].get_extension()) == OK:
+			texture.create_from_image(image)
+			view_image_btn.set_normal_texture(texture)
 
-			index += 1
-			request_image()
+			# Connect signal to the CustomToolTip of the view_image_btn
+			if view_image_btn.connect("mouse_entered", self, "_on_mouse_entered_view_image_btn", [view_image_btn.name]) != OK:
+				push_error("An error occurred in signal connection.")
+
+			if view_image_btn.connect("mouse_exited", self, "_on_mouse_exited_view_image_btn") != OK:
+				push_error("An error occurred in signal connection.")
+
+		if weakref(texture) : pass
+		if weakref(image) : pass
+
+		index += 1
+		request_image()
+
+
+func _on_mouse_entered_view_image_btn(id : String) -> void:
+	$GUI/Master/CustomTooltip.add_child(custom_tooltip.instance())
+
+	if $GUI/Master/CustomTooltip.get_child_count() > 0:
+		$GUI/Master/CustomTooltip.get_child(0).rect_min_size.x = 450
+		$GUI/Master/CustomTooltip.get_child(0)._set_global_position($GUI/Master.get_global_mouse_position())
+
+		for an_image in menu.get_children():
+			if an_image.name == id:
+				var tags = "[b]Tags:[/b] "+download_list[an_image.get_index()]["tags"]
+				$GUI/Master/CustomTooltip.get_child(0).get_node("Margin/Text").set_bbcode(tags)
+
+	if weakref(custom_tooltip) : pass
+
+
+func _on_mouse_exited_view_image_btn() -> void:
+	$GUI/Master/CustomTooltip.get_child(0).free()
+
+
+func _on_when_resized_menu() -> void:
+#	print("menu.x: "+str(menu.rect_size.x)+", image.x: "+str(ceil(menu.rect_size.x / 6)))
+
+	for an_image in menu.get_children():
+		an_image.set_custom_minimum_size(Vector2((menu.rect_size.x / 6), 200))
+
+	menu.rect_size.x = menu.get_parent().rect_size.x - 8
+# warning-ignore:narrowing_conversion
+	menu.add_constant_override("hseparation", stepify((menu.rect_size.x / 6) - ((menu.rect_size.x / 6) * 0.80000), 0.00001))
+	menu.add_constant_override("vseparation", 8)

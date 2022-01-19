@@ -19,10 +19,19 @@ config/icon="res://gui/about_weeber_image.png"
 
 driver=""
 
+[debug]
+
+settings/stdout/verbose_stdout=true
+
 [display]
 
 window/size/width=900
 window/tablet_driver=""
+window/stretch/aspect="expand"
+
+[global]
+
+tooltip=false
 
 [importer_defaults]
 
