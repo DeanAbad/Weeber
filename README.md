@@ -7,6 +7,7 @@ Weeber is a simple imageboard (booru) downloader that was built with the Godot E
 <blockquote>
 January 20, 2022
 
+- [x] Added colors and count to tags
 - [x] Added tags in Tags list/section
 
 January 19, 2022

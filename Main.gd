@@ -7,12 +7,13 @@ var request_api_post : String = "page=dapi&s=post&q=index"
 var request_api_tags : String = "page=dapi&s=tag&q=index"
 var request_key : String = "&api_key=8ab7ebb52c422eed978168195d24ac54856447855f7676169517683bf7847839&user_id=918696"
 var request_tag : String = "&tags=rating:safe -rating:explicit -rating:questionable"
-var request_post_size : int = 20
+var request_post_size : int = 25
 var request_tags_size : int = 100 # 100 is max per request
 var request_post_options : String = "&limit="+str(request_post_size)+request_tag+"&pid=0&json=1"
 var request_tags_options : String = "&limit="+str(request_tags_size)+"&pid=0&json=1"
 var request_url_post : String = BASE_URL+request_api_post+request_key+request_post_options.http_unescape()
 var request_url_tags : String = BASE_URL+request_api_tags+request_key+request_tags_options.http_unescape()
+
 # Download queue
 var download_path : String = "user://downloads"
 var preview_path : String = "user://previews"
@@ -269,23 +270,68 @@ func _on_tags_httprequest_signal_completed(_result, _response_code, _headers, bo
 	if $HTTPRequest.is_connected("request_completed", self, "_on_tags_httprequest_signal_completed"):
 		$HTTPRequest.disconnect("request_completed", self, "_on_tags_httprequest_signal_completed")
 
-#	if OS.is_debug_build() == true: print(JSON.print(object["tag"][0], "\t"))
+#	if OS.is_debug_build() == true: print(JSON.print(object["tag"], "\t"))
 
 	for an_index in object["tag"]:
 		var item : Dictionary = {
 			"id":str(an_index["id"]),
-			"name":an_index["name"].c_unescape(),
+			"name":an_index["name"],#.erase(an_index["name"].find("&", an_index["name"].length() - 1), 6),
 			"count":str(an_index["count"]),
 			"type":str(an_index["type"])
 		}
 		tags_list.append(item)
 
 	for an_index in tags_list.size():
+		# Add HboxContainer as containers for LinkButton (name) and Label (count) of a tag
+		var list_tag : HBoxContainer = HBoxContainer.new()
 		var list_tag_btn : LinkButton = LinkButton.new()
-		list.add_child(list_tag_btn, true)
+		var list_tag_num : Label = Label.new()
+
+		list.add_child(list_tag, true)
+
 		if list.get_child_count() > 0:
-			list.get_child(an_index).set_text(object["tag"][an_index]["name"])
+			list.get_child(an_index).set("custom_constants/separation", 8)
+
+			list.get_child(an_index).add_child(list_tag_btn, true)
+			list.get_child(an_index).add_child(list_tag_num, true)
+
+			if list.get_child(an_index).get_child_count() > 0:
+				list.get_child(an_index).get_child(0).set_text(object["tag"][an_index]["name"])
+				list.get_child(an_index).get_child(0).set_underline_mode(LinkButton.UNDERLINE_MODE_NEVER)
+				list.get_child(an_index).get_child(1).set_text("("+comma_the_number(object["tag"][an_index]["count"])+")")
+				list.get_child(an_index).get_child(1).set("custom_colors/font_color", Color("#a0a0a0"))
+
+				match int(object["tag"][an_index]["type"]): # Set default font color of tag based from its type
+					0: list.get_child(an_index).get_child(0).set("custom_colors/font_color", Color("#337ab7")) # General
+					1: list.get_child(an_index).get_child(0).set("custom_colors/font_color", Color("#A00"))    # Artist
+					3: list.get_child(an_index).get_child(0).set("custom_colors/font_color", Color("#A0A"))    # Character
+					4: list.get_child(an_index).get_child(0).set("custom_colors/font_color", Color("#0A0"))    # Copyright e.g. Pokemon 
+					5: list.get_child(an_index).get_child(0).set("custom_colors/font_color", Color("#F80"))    # Metadata e.g. animated
+					6: list.get_child(an_index).get_child(0).set("custom_colors/font_color", Color("#000"))    # Unofficial/low count tag
+
+				match int(object["tag"][an_index]["type"]): # Set hover font color of tag based from its type
+					0: list.get_child(an_index).get_child(0).set("custom_colors/font_color_hover", Color("#337ab7")) # General
+					1: list.get_child(an_index).get_child(0).set("custom_colors/font_color_hover", Color("#A00"))    # Artist
+					3: list.get_child(an_index).get_child(0).set("custom_colors/font_color_hover", Color("#A0A"))    # Character
+					4: list.get_child(an_index).get_child(0).set("custom_colors/font_color_hover", Color("#0A0"))    # Copyright e.g. Pokemon 
+					5: list.get_child(an_index).get_child(0).set("custom_colors/font_color_hover", Color("#F80"))    # Metadata e.g. animated
+					6: list.get_child(an_index).get_child(0).set("custom_colors/font_color_hover", Color("#000"))    # Unofficial/low count tag
+
+				match int(object["tag"][an_index]["type"]): # Set pressed font color of tag based from its type
+					0: list.get_child(an_index).get_child(0).set("custom_colors/font_color_pressed", Color("#337ab7")) # General
+					1: list.get_child(an_index).get_child(0).set("custom_colors/font_color_pressed", Color("#A00"))    # Artist
+					3: list.get_child(an_index).get_child(0).set("custom_colors/font_color_pressed", Color("#A0A"))    # Character
+					4: list.get_child(an_index).get_child(0).set("custom_colors/font_color_pressed", Color("#0A0"))    # Copyright e.g. Pokemon 
+					5: list.get_child(an_index).get_child(0).set("custom_colors/font_color_pressed", Color("#F80"))    # Metadata e.g. animated
+					6: list.get_child(an_index).get_child(0).set("custom_colors/font_color_pressed", Color("#000"))    # Unofficial/low count tag
+
+			else: pass
 		else: pass
+
+
+		if weakref(list_tag) : pass
+		if weakref(list_tag_btn) : pass
+		if weakref(list_tag_num) : pass
 
 	request_image()
 
@@ -366,9 +412,13 @@ func _on_mouse_entered_tags_list_help_icon() -> void:
 	$GUI/Master/CustomTooltip.add_child(custom_tooltip.instance())
 
 	if $GUI/Master/CustomTooltip.get_child_count() > 0:
-		$GUI/Master/CustomTooltip.get_child(0).rect_min_size.x = 200
+		$GUI/Master/CustomTooltip.get_child(0).rect_min_size.x = 230
 		$GUI/Master/CustomTooltip.get_child(0)._set_global_position($GUI/Master.get_global_mouse_position())
-		$GUI/Master/CustomTooltip.get_child(0).get_node("Margin/Text").set_bbcode("The list consists only of common tags between the images.")
+		$GUI/Master/CustomTooltip.get_child(0).get_node("Margin/Text").set_bbcode(
+			"[b]Information[/b]\n" \
+			+ "The list consists only of common tags between the images." \
+			+ "\nIf the tag is colored black, then it must be an unofficial tag or low in count."
+		)
 
 	if weakref(custom_tooltip) : pass
 
@@ -411,3 +461,16 @@ func _on_when_resized_menu() -> void:
 # warning-ignore:narrowing_conversion
 	menu.add_constant_override("hseparation", stepify((menu.rect_size.x / 6) - ((menu.rect_size.x / 6) * 0.80000), 0.00001))
 	menu.add_constant_override("vseparation", 8)
+
+
+func comma_the_number(number : int) -> String:
+	var text : String = str(number)
+	var modulus : int = text.length() % 3
+	var result : String = ""
+
+	for an_index in range(0, text.length()):
+		if an_index != 0 and an_index % 3 == modulus:
+			result += ","
+		result += text[an_index]
+
+	return result
