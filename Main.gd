@@ -1,5 +1,39 @@
 extends Node
 
+class CustomSortTagsList:
+	static func ascend_by_id(item_1, item_2) -> bool:
+		if item_1["id"] < item_2["id"]: return true
+		return false
+
+	static func ascend_by_name(item_1, item_2) -> bool:
+		if item_1["name"] < item_2["name"]: return true
+		return false
+
+	static func ascend_by_count(item_1, item_2) -> bool:
+		if item_1["count"] < item_2["count"]: return true
+		return false
+
+	static func ascend_by_type(item_1, item_2) -> bool:
+		if item_1["type"] < item_2["type"]: return true
+		return false
+
+	static func descend_by_id(item_1, item_2) -> bool:
+		if item_1["id"] > item_2["id"]: return true
+		return false
+
+	static func descend_by_name(item_1, item_2) -> bool:
+		if item_1["name"] > item_2["name"]: return true
+		return false
+
+	static func descend_by_count(item_1, item_2) -> bool:
+		if item_1["count"] > item_2["count"]: return true
+		return false
+
+	static func descend_by_type(item_1, item_2) -> bool:
+		if item_1["type"] > item_2["type"]: return true
+		return false
+
+
 # ===================== REQUEST VARIABLES - START ==========================
 # Request url & api
 const BASE_URL : String = "https://gelbooru.com/index.php?"
@@ -24,11 +58,15 @@ var size: int = 0
 # ====================== REQUEST VARIABLES - END ===========================
 
 # ======================= GUI VARIABLES - START ============================
-onready var custom_tooltip : PackedScene = preload("res://CustomToolTip.tscn")
+onready var tooltip : PackedScene = preload("res://CustomToolTip.tscn")
+onready var about_popup_weeber : PackedScene = preload("res://Weeber.tscn")
+onready var about_popup_tags : PackedScene = preload("res://Tags.tscn")
+onready var about_popup_godot : PackedScene = preload("res://Godot.tscn")
 onready var menu_bar : HBoxContainer = $GUI/Master/Container/MenuBar
 onready var list : VBoxContainer = $GUI/Master/Container/Margin/Content/Info/Margin/File/Tags/Margin/Content/Scroll/List
 onready var menu : GridContainer = $GUI/Master/Container/Margin/Content/Post/Object/Margin2/Gallery/Panel1/Margin/Scroll/Menu
 onready var about_popup : Control = $GUI/Master/AboutPopup
+onready var custom_tooltip : Control = $GUI/Master/CustomTooltip
 # ======================== GUI VARIABLES - END =============================
 
 
@@ -147,13 +185,16 @@ func set_gui() -> void:
 	key.set_control(false) # Since there are no shortcuts in help popup menu,
 	key.set_scancode(0)    # just revert its properties with default values
 
-	icon.texture = load("res://gui/icon/about_weeber.png")
-	helpbtn_popupmenu.add_icon_item(icon.get_texture(), "  About Weeber", 0, 0)
+	icon.texture = load("res://gui/icon/tags.png")
+	helpbtn_popupmenu.add_icon_item(icon.get_texture(), "  About Tags", 0, 0)
 
-	helpbtn_popupmenu.add_separator("", 1)
+	icon.texture = load("res://gui/icon/about_weeber.png")
+	helpbtn_popupmenu.add_icon_item(icon.get_texture(), "  About Weeber", 1, 0)
+
+	helpbtn_popupmenu.add_separator("", 2)
 
 	icon.texture = load("res://gui/icon/about_godot_engine.png")
-	helpbtn_popupmenu.add_icon_item(icon.get_texture(), "  About Godot Engine", 2, 0)
+	helpbtn_popupmenu.add_icon_item(icon.get_texture(), "  About Godot Engine", 3, 0)
 # ======================= HELPBTN SETTINGS - END ===========================
 
 	icon.free()
@@ -162,14 +203,7 @@ func set_gui() -> void:
 	var filebtn_popupmenu_connection : int = filebtn_popupmenu.connect("index_pressed", self, "_filebtn_popmenu_item_pressed")
 	var help_popupmenu_connection : int = helpbtn_popupmenu.connect("index_pressed", self, "_helpbtn_popmenu_item_pressed")
 
-	# Make connection for link buttons
-	var about_popup_weeber_github_link_btn : LinkButton = about_popup.get_node("Weeber/GithubLinkBtn")
-	var about_popup_godot_godot_link_btn : LinkButton = about_popup.get_node("Godot/GodotLinkBtn")
-	var github_link_btn_connection : int = about_popup_weeber_github_link_btn.connect("pressed", self, "_goto_link", ["https://github.com/MumuNiMochii/Weeber"])
-	var godot_link_btn_connection : int = about_popup_godot_godot_link_btn.connect("pressed", self, "_goto_link", ["https://godotengine.org"])
-
-	if filebtn_popupmenu_connection or help_popupmenu_connection or github_link_btn_connection or godot_link_btn_connection != OK:
-		push_error("An error occurred in signal connection.")
+	if filebtn_popupmenu_connection or help_popupmenu_connection != OK: push_error("An error occurred in signal connection.")
 
 
 func _filebtn_popmenu_item_pressed(an_item: int) -> void:
@@ -179,30 +213,71 @@ func _filebtn_popmenu_item_pressed(an_item: int) -> void:
 
 
 func _helpbtn_popmenu_item_pressed(an_item: int) -> void:
-	match an_item:
-		0: $GUI/Master/AboutPopup/Weeber.visible = !$GUI/Master/AboutPopup/Weeber.visible
-		2: $GUI/Master/AboutPopup/Godot.visible = !$GUI/Master/AboutPopup/Godot.visible
+		about_popup.visible = !about_popup.visible
+		match an_item:
+			0:
+				if about_popup.get_child_count() > 0:
+					if "Tags" in about_popup.get_child(0).name:
+						about_popup.get_child(0).free()
+					else: pass
+
+				about_popup.add_child(about_popup_tags.instance(), true)
+				if about_popup.get_child_count() > 0:
+					about_popup.get_node("Tags").visible = !about_popup.get_node("Tags").visible
+				else: pass
+
+				if weakref(about_popup_tags) : pass
+
+			1:
+				if about_popup.get_child_count() > 0:
+					if "Weeber" in about_popup.get_child(0).name:
+						about_popup.get_child(0).free()
+					else: pass
+
+				about_popup.add_child(about_popup_weeber.instance(), true)
+				if about_popup.get_child_count() > 0:
+					about_popup.get_node("Weeber").visible = !about_popup.get_node("Weeber").visible
+
+					var link_btn : LinkButton = about_popup.get_node("Weeber/GithubLinkBtn")
+					var link_btn_connection : int = link_btn.connect("pressed", self, "_goto_link", ["https://github.com/MumuNiMochii/Weeber"])
+					if link_btn_connection != OK: push_error("An error occurred in signal connection.")
+				else: pass
+
+				if weakref(about_popup_weeber) : pass
+
+			3:
+				if about_popup.get_child_count() > 0:
+					if "Godot" in about_popup.get_child(0).name:
+						about_popup.get_child(0).free()
+					else: pass
+
+				about_popup.add_child(about_popup_godot.instance(), true)
+				if about_popup.get_child_count() > 0:
+					about_popup.get_node("Godot").visible = !about_popup.get_node("Godot").visible
+
+					var link_btn : LinkButton = about_popup.get_node("Godot/GodotLinkBtn")
+					var link_btn_connection : int = link_btn.connect("pressed", self, "_goto_link", ["https://godotengine.org"])
+					if link_btn_connection != OK: push_error("An error occurred in signal connection.")
+				else: pass
+
+				if weakref(about_popup_godot) : pass
 
 
 func _goto_link(link : String) -> void:
-	if OS.shell_open(link) != OK:
-		push_error("An error occurred while going to link.")
+	if OS.shell_open(link) != OK: push_error("An error occurred while going to link.")
 
 
 func initialize_httprequest_signal() -> void:
 	# Make HTTPRequest function and connect it for signal
-	if $HTTPRequest.connect("request_completed", self, "_on_initial_request_completed") != OK:
-		push_error("An error occurred in signal connection.")
-	else:
-		$HTTPRequest.set_use_threads(true)
+	if $HTTPRequest.connect("request_completed", self, "_on_initial_request_completed") != OK: push_error("An error occurred in signal connection.")
+	else: $HTTPRequest.set_use_threads(true)
 
 	if $HTTPRequest.request(
 		request_url_post,
 		PoolStringArray([
 			"text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"
 		]), true, 0
-	) != OK:
-		push_error("An error occurred in the HTTP request.")
+	) != OK: push_error("An error occurred in the HTTP request.")
 
 
 func _on_initial_request_completed(_result, _response_code, _headers, body) -> void:
@@ -211,36 +286,66 @@ func _on_initial_request_completed(_result, _response_code, _headers, body) -> v
 	var string_body_result : String = body.get_string_from_utf8()
 	var json_parse_result : JSONParseResult = JSON.parse(string_body_result)
 	var object : Dictionary = json_parse_result.get_result()
-	size = object["post"].size()
 
-	# Disconnect to prevent from being emitted when request_image() is used
-	if $HTTPRequest.is_connected("request_completed", self, "_on_initial_request_completed"):
-		$HTTPRequest.disconnect("request_completed", self, "_on_initial_request_completed")
+	if "post" in object:
+		size = object["post"].size()
 
-#	if OS.is_debug_build() == true: print(JSON.print(object["post"][0], "\t"))
+		# Disconnect to prevent from being emitted when request_image() is used
+		if $HTTPRequest.is_connected("request_completed", self, "_on_initial_request_completed"):
+			$HTTPRequest.disconnect("request_completed", self, "_on_initial_request_completed")
 
-	for an_index in object["post"]:
-		var item : Dictionary = {
-			"id":str(an_index["id"]),
-			"url":an_index["file_url"],
-			"view":an_index["preview_url"],
-			"tags":an_index["tags"],
-			"width":str(an_index["width"]),
-			"height":str(an_index["height"]),
-			"rating":an_index["rating"],
-			"date":an_index["created_at"],
-			"score":str(an_index["score"])
-		}
-		download_list.append(item)
+#		if OS.is_debug_build() == true: print(JSON.print(object["post"][0], "\t"))
 
-#	if OS.is_debug_build() == true:
-#		var string = JSON.print(item, "\t")
-#		var object_string_sample : String = JSON.print(object["post"][0], "\t")
-#		print(string)
-#		print(download_list)
-#		print(object_string_sample)
+		for an_index in object["post"]:
+			var item : Dictionary = {
+				"id":str(an_index["id"]),
+				"url":an_index["file_url"],
+				"view":an_index["preview_url"],
+				"tags":an_index["tags"],
+				"width":str(an_index["width"]),
+				"height":str(an_index["height"]),
+				"rating":an_index["rating"],
+				"date":an_index["created_at"],
+				"score":str(an_index["score"])
+			}
+			download_list.append(item)
 
-	tags_httprequest_signal()
+#		if OS.is_debug_build() == true:
+#			var string = JSON.print(item, "\t")
+#			var object_string_sample : String = JSON.print(object["post"][0], "\t")
+#			print(string)
+#			print(download_list)
+#			print(object_string_sample)
+
+		# Remove the text of no results when request was run again
+		if menu.get_parent().get_parent().get_child_count() > 1:
+			if menu.get_parent().get_parent().get_child(1).get_child_count() > 1:
+				menu.get_parent().get_parent().get_child(1).get_child(0).free()
+			else: pass
+
+			menu.get_parent().get_parent().get_child(1).free()
+		else: pass
+
+		tags_httprequest_signal()
+
+	else:
+		var no_result_container : CenterContainer = CenterContainer.new()
+		menu.get_parent().get_parent().add_child(no_result_container, true)
+
+		if menu.get_parent().get_parent().get_child_count() > 1:
+			var no_result_text : Label = Label.new()
+			menu.get_parent().get_parent().get_child(1).set_name("NoResultContainer")
+			menu.get_parent().get_parent().get_child(1).add_child(no_result_text, true)
+
+			if menu.get_parent().get_parent().get_child(1).get_child_count() > 0:
+				menu.get_parent().get_parent().get_child(1).get_child(0).set_name("NoResultText")
+				menu.get_parent().get_parent().get_child(1).get_child(0).set_text("There are no results.")
+			else : pass
+
+			if weakref(no_result_text) : pass
+		else : pass
+
+		if weakref(no_result_container) : pass
 
 
 func tags_httprequest_signal() -> void:
@@ -281,7 +386,13 @@ func _on_tags_httprequest_signal_completed(_result, _response_code, _headers, bo
 		}
 		tags_list.append(item)
 
-	for an_index in tags_list.size():
+	tags_list.sort_custom(CustomSortTagsList, "ascend_by_type")
+	tags_list.sort_custom(CustomSortTagsList, "ascend_by_name")
+
+#	for an_index in tags_list.size() - 1:
+#		print("Type: "+str(tags_list[an_index]["type"])+", Name: "+tags_list[an_index]["name"])
+
+	for an_index in tags_list.size() - 1:
 		# Add HboxContainer as containers for LinkButton (name) and Label (count) of a tag
 		var list_tag : HBoxContainer = HBoxContainer.new()
 		var list_tag_btn : LinkButton = LinkButton.new()
@@ -296,38 +407,37 @@ func _on_tags_httprequest_signal_completed(_result, _response_code, _headers, bo
 			list.get_child(an_index).add_child(list_tag_num, true)
 
 			if list.get_child(an_index).get_child_count() > 0:
-				list.get_child(an_index).get_child(0).set_text(object["tag"][an_index]["name"])
+				list.get_child(an_index).get_child(0).set_text(tags_list[an_index]["name"])
 				list.get_child(an_index).get_child(0).set_underline_mode(LinkButton.UNDERLINE_MODE_NEVER)
-				list.get_child(an_index).get_child(1).set_text("("+comma_the_number(object["tag"][an_index]["count"])+")")
+				list.get_child(an_index).get_child(1).set_text("("+comma_the_number(int(tags_list[an_index]["count"]))+")")
 				list.get_child(an_index).get_child(1).set("custom_colors/font_color", Color("#a0a0a0"))
 
-				match int(object["tag"][an_index]["type"]): # Set default font color of tag based from its type
+				match int(tags_list[an_index]["type"]): # Set default font color of tag based from its type
 					0: list.get_child(an_index).get_child(0).set("custom_colors/font_color", Color("#337ab7")) # General
 					1: list.get_child(an_index).get_child(0).set("custom_colors/font_color", Color("#A00"))    # Artist
-					3: list.get_child(an_index).get_child(0).set("custom_colors/font_color", Color("#A0A"))    # Character
-					4: list.get_child(an_index).get_child(0).set("custom_colors/font_color", Color("#0A0"))    # Copyright e.g. Pokemon 
+					3: list.get_child(an_index).get_child(0).set("custom_colors/font_color", Color("#A0A"))    # Copyright e.g. Pokemon 
+					4: list.get_child(an_index).get_child(0).set("custom_colors/font_color", Color("#0A0"))    # Character
 					5: list.get_child(an_index).get_child(0).set("custom_colors/font_color", Color("#F80"))    # Metadata e.g. animated
 					6: list.get_child(an_index).get_child(0).set("custom_colors/font_color", Color("#000"))    # Unofficial/low count tag
 
-				match int(object["tag"][an_index]["type"]): # Set hover font color of tag based from its type
+				match int(tags_list[an_index]["type"]): # Set hover font color of tag based from its type
 					0: list.get_child(an_index).get_child(0).set("custom_colors/font_color_hover", Color("#337ab7")) # General
 					1: list.get_child(an_index).get_child(0).set("custom_colors/font_color_hover", Color("#A00"))    # Artist
-					3: list.get_child(an_index).get_child(0).set("custom_colors/font_color_hover", Color("#A0A"))    # Character
-					4: list.get_child(an_index).get_child(0).set("custom_colors/font_color_hover", Color("#0A0"))    # Copyright e.g. Pokemon 
+					3: list.get_child(an_index).get_child(0).set("custom_colors/font_color_hover", Color("#A0A"))    # Copyright e.g. Pokemon 
+					4: list.get_child(an_index).get_child(0).set("custom_colors/font_color_hover", Color("#0A0"))    # Character
 					5: list.get_child(an_index).get_child(0).set("custom_colors/font_color_hover", Color("#F80"))    # Metadata e.g. animated
 					6: list.get_child(an_index).get_child(0).set("custom_colors/font_color_hover", Color("#000"))    # Unofficial/low count tag
 
-				match int(object["tag"][an_index]["type"]): # Set pressed font color of tag based from its type
+				match int(tags_list[an_index]["type"]): # Set pressed font color of tag based from its type
 					0: list.get_child(an_index).get_child(0).set("custom_colors/font_color_pressed", Color("#337ab7")) # General
 					1: list.get_child(an_index).get_child(0).set("custom_colors/font_color_pressed", Color("#A00"))    # Artist
-					3: list.get_child(an_index).get_child(0).set("custom_colors/font_color_pressed", Color("#A0A"))    # Character
-					4: list.get_child(an_index).get_child(0).set("custom_colors/font_color_pressed", Color("#0A0"))    # Copyright e.g. Pokemon 
+					3: list.get_child(an_index).get_child(0).set("custom_colors/font_color_pressed", Color("#A0A"))    # Copyright e.g. Pokemon 
+					4: list.get_child(an_index).get_child(0).set("custom_colors/font_color_pressed", Color("#0A0"))    # Character
 					5: list.get_child(an_index).get_child(0).set("custom_colors/font_color_pressed", Color("#F80"))    # Metadata e.g. animated
 					6: list.get_child(an_index).get_child(0).set("custom_colors/font_color_pressed", Color("#000"))    # Unofficial/low count tag
 
 			else: pass
 		else: pass
-
 
 		if weakref(list_tag) : pass
 		if weakref(list_tag_btn) : pass
@@ -409,30 +519,33 @@ func _on_file_request_completed(_result, _response_code, headers, _body) -> void
 
 
 func _on_mouse_entered_tags_list_help_icon() -> void:
-	$GUI/Master/CustomTooltip.add_child(custom_tooltip.instance())
+	custom_tooltip.add_child(tooltip.instance())
+	custom_tooltip.visible = !custom_tooltip.visible
 
-	if $GUI/Master/CustomTooltip.get_child_count() > 0:
-		$GUI/Master/CustomTooltip.get_child(0).rect_min_size.x = 230
-		$GUI/Master/CustomTooltip.get_child(0)._set_global_position($GUI/Master.get_global_mouse_position())
-		$GUI/Master/CustomTooltip.get_child(0).get_node("Margin/Text").set_bbcode(
+	if custom_tooltip.get_child_count() > 0:
+		custom_tooltip.get_child(0).rect_min_size.x = 230
+		custom_tooltip.get_child(0)._set_global_position($GUI/Master.get_global_mouse_position())
+		custom_tooltip.get_child(0).get_node("Margin/Text").set_bbcode(
 			"[b]Information[/b]\n" \
-			+ "The list consists only of common tags between the images." \
+			+ "This list consists of the tags that are available from the loaded images." \
 			+ "\nIf the tag is colored black, then it must be an unofficial tag or low in count."
 		)
 
-	if weakref(custom_tooltip) : pass
+	if weakref(tooltip) : pass
 
 
 func _on_mouse_exited_tags_list_help_icon() -> void:
-	$GUI/Master/CustomTooltip.get_child(0).free()
+	custom_tooltip.visible = !custom_tooltip.visible
+	custom_tooltip.get_child(0).free()
 
 
 func _on_mouse_entered_view_image_btn(id : String) -> void:
-	$GUI/Master/CustomTooltip.add_child(custom_tooltip.instance())
+	custom_tooltip.add_child(tooltip.instance())
+	custom_tooltip.visible = !custom_tooltip.visible
 
-	if $GUI/Master/CustomTooltip.get_child_count() > 0:
-		$GUI/Master/CustomTooltip.get_child(0).rect_min_size.x = 450
-		$GUI/Master/CustomTooltip.get_child(0)._set_global_position($GUI/Master.get_global_mouse_position())
+	if custom_tooltip.get_child_count() > 0:
+		custom_tooltip.get_child(0).rect_min_size.x = 450
+		custom_tooltip.get_child(0)._set_global_position($GUI/Master.get_global_mouse_position())
 
 		for an_image in menu.get_children():
 			if an_image.name == id:
@@ -442,13 +555,14 @@ func _on_mouse_entered_view_image_btn(id : String) -> void:
 				+"\n[b]Score:[/b] "+download_list[an_image.get_index()]["score"] \
 				+"\n[b]Size:[/b] "+download_list[an_image.get_index()]["width"]+"x"+download_list[an_image.get_index()]["height"] \
 				+"\n[b]Date:[/b] "+download_list[an_image.get_index()]["date"]
-				$GUI/Master/CustomTooltip.get_child(0).get_node("Margin/Text").set_bbcode(tags)
+				custom_tooltip.get_child(0).get_node("Margin/Text").set_bbcode(tags)
 
-	if weakref(custom_tooltip) : pass
+	if weakref(tooltip) : pass
 
 
 func _on_mouse_exited_view_image_btn() -> void:
-	$GUI/Master/CustomTooltip.get_child(0).free()
+	custom_tooltip.visible = !custom_tooltip.visible
+	custom_tooltip.get_child(0).free()
 
 
 func _on_when_resized_menu() -> void:
@@ -459,7 +573,7 @@ func _on_when_resized_menu() -> void:
 
 	menu.rect_size.x = menu.get_parent().rect_size.x - 8
 # warning-ignore:narrowing_conversion
-	menu.add_constant_override("hseparation", stepify((menu.rect_size.x / 6) - ((menu.rect_size.x / 6) * 0.80000), 0.00001))
+	menu.add_constant_override("hseparation", (menu.rect_size.x / 6) - (menu.rect_size.x / 6) * 0.8)
 	menu.add_constant_override("vseparation", 8)
 
 
